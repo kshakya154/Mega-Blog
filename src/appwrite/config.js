@@ -14,6 +14,7 @@ export class Service {
   }
   async createPost(title,slug,content,featuredImage,status , userId){
     try {
+      console.log("Creating post with:", { title, slug, content, featuredImage, status, userId });
       return await this.databases.createDocument(
         confg.appwriteDatabaseId,
         confg.appwriteCollectionId,
@@ -28,6 +29,7 @@ export class Service {
       ) 
     } catch (error) {
       console.log("Appwrite serive :: createPost :: error", error);
+      throw error;
     }
   }
   async updatePost(slug ,{title,content,featuredImage,status }){
@@ -119,10 +121,18 @@ export class Service {
   }
 
   getFilePreview(fileId){
-    return this.bucket.getFilePreview(
-      confg.appwriteBucketId,
-      fileId
-    )
+    try {
+      if (!fileId) {
+        throw new Error("Missing required parameter: fileId");
+      }
+      console.log("Fetching preview for fileId:", fileId);
+      return this.bucket.getFilePreview(
+        confg.appwriteBucketId,
+        fileId
+      );
+    } catch (error) {
+      console.log("Error while fetching image", error);
+    }
   }
 }
 
